@@ -31,7 +31,7 @@ const userStore = useUserStore()
         </div>
       </div>
     </nav>
-    <main class="px-12 max-w-7xl mx-auto">
+    <main class="px-12 max-w-5xl mx-auto">
       <RouterView />
     </main>
   </div>

@@ -6,7 +6,10 @@ export default {
       colors: {
         primary: '#C590DD',
         secondary: '#C36AD1',
-        accent: '#7e22ce',
+        accent: {
+          base: '#7e22ce',
+          hover: '#6F1EB6',
+        },
         background: '#C36AD1',
       },
     },

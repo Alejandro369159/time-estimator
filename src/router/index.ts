@@ -33,7 +33,6 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const isAuthenticated = useUserStore().user
   if (!isAuthenticated && to.name !== 'login') {
-    console.log('blocked')
     next({ name: 'login' })
   } else next()
 })

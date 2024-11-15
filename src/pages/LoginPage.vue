@@ -195,7 +195,7 @@ const clearForm = () => {
             <button
               type="submit"
               :disabled="loading"
-              class="w-full px-3 py-2 rounded-md bg-accent text-white text-lg hover:bg-indigo-800 transition"
+              class="w-full px-3 py-2 rounded-md bg-accent-base text-white text-lg hover:bg-accent-hover transition"
               v-text="isLogin ? 'Entrar' : 'Crear cuenta'"
             ></button>
           </form>
