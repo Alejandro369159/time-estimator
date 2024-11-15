@@ -1,10 +1,10 @@
 import { registryFromFirestore } from '@/entities/HistoryRegistry'
 import { db } from '@/services/firebase'
-import { collection, getDocs, query, where } from 'firebase/firestore'
+import { collection, getDocs, orderBy, query, where } from 'firebase/firestore'
 
 export class HistoryRegistriesRepository {
   public static async getByAuthor(authorId: string) {
-    const q = query(collection(db, 'history'), where('authorId', '==', authorId))
+    const q = query(collection(db, 'history'), where('authorId', '==', authorId), orderBy('desc'))
     const snapshot = await getDocs(q)
     return snapshot.docs.map(registryFromFirestore)
   }

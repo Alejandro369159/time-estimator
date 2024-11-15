@@ -6,6 +6,7 @@ export type HistoryRegistry = {
   taskCompletitionTimeInMinutes: number
   authorId: string
   memberId: string
+  createdAt: Date
 }
 
 export function registryFromFirestore(doc: QueryDocumentSnapshot): HistoryRegistry {
@@ -15,5 +16,6 @@ export function registryFromFirestore(doc: QueryDocumentSnapshot): HistoryRegist
     memberId: doc.data().memberId,
     taskDificulty: doc.data().taskDificulty,
     taskCompletitionTimeInMinutes: doc.data().taskCompletitionTimeInMinutes,
+    createdAt: doc.data().createdAt.toDate(),
   }
 }

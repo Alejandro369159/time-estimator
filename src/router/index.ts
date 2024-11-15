@@ -21,7 +21,7 @@ const router = createRouter({
           component: () => import('@/pages/MyTeamPage.vue'),
         },
         {
-          path: 'detalle-de-miembro',
+          path: 'detalle-de-miembro/:id',
           name: 'member-detail',
           component: () => import('@/pages/MemberDetailPage.vue'),
         },
