@@ -116,7 +116,7 @@ const clearForm = () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center">
+  <main class="min-h-screen flex items-center">
     <div class="flex w-3/4 mx-auto md:w-full bg-white shadow-lg">
       <!-- Image section -->
       <div class="flex-1 hidden md:flex">
@@ -212,7 +212,7 @@ const clearForm = () => {
         </div>
       </div>
     </div>
-  </div>
+  </main>
 </template>
 
 <style scoped>
