@@ -7,6 +7,9 @@ import {
   updateProfile,
 } from 'firebase/auth'
 import router from '@/router'
+import { useUserStore } from '@/stores/useUserStore'
+
+const userStore = useUserStore()
 
 // Estado inicial
 const isLogin = ref(true)
@@ -60,8 +63,14 @@ const handleSubmit = async () => {
 
   try {
     if (isLogin.value) {
-      await signInWithEmailAndPassword(auth, formData.value.email, formData.value.password)
-      router.push('/home')
+      const authUser = await signInWithEmailAndPassword(
+        auth,
+        formData.value.email,
+        formData.value.password,
+      )
+      // Setting '' is not the best solution but for time purposes we are using that solution
+      userStore.setUser({ name: authUser.user.displayName ?? '', email: authUser.user.email ?? '' })
+      router.push({ name: 'my-team' })
     } else {
       const userCredential = await createUserWithEmailAndPassword(
         auth,

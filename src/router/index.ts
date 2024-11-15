@@ -1,3 +1,4 @@
+import { useUserStore } from '@/stores/useUserStore'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -8,7 +9,25 @@ const router = createRouter({
       name: 'login',
       component: () => import('@/pages/LoginPage.vue'),
     },
+    {
+      path: '/mi-equipo',
+      name: 'my-team',
+      component: () => import('@/pages/MyTeamPage.vue'),
+    },
+    {
+      path: '/detalle-de-miembro',
+      name: 'member-detail',
+      component: () => import('@/pages/MemberDetailPage.vue'),
+    },
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = useUserStore().user
+  if (!isAuthenticated && to.name !== 'login') {
+    console.log('blocked')
+    next({ name: 'login' })
+  } else next()
 })
 
 export default router
