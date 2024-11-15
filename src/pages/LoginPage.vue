@@ -69,7 +69,11 @@ const handleSubmit = async () => {
         formData.value.password,
       )
       // Setting '' is not the best solution but for time purposes we are using that solution
-      userStore.setUser({ name: authUser.user.displayName ?? '', email: authUser.user.email ?? '' })
+      userStore.setUser({
+        id: authUser.user.uid,
+        name: authUser.user.displayName ?? '',
+        email: authUser.user.email ?? '',
+      })
       router.push({ name: 'my-team' })
     } else {
       const userCredential = await createUserWithEmailAndPassword(

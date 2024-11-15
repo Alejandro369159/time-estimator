@@ -13,6 +13,7 @@ const router = createRouter({
       path: '/',
       name: 'navbar-layout',
       component: () => import('@/layout/NavbarLayout.vue'),
+      redirect: '/mi-equipo',
       children: [
         {
           path: 'mi-equipo',

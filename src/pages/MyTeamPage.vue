@@ -1,12 +1,36 @@
 <script setup lang="ts">
+import LoadingLabel from '@/components/LoadingLabel.vue'
+import type { HistoryRegistry } from '@/entities/HistoryRegistry'
+import { showErrorToast } from '@/helpers/swalFunctions'
+import { historyRegistryRepositories } from '@/repositories'
+import { useUserStore } from '@/stores/useUserStore'
 import { ChevronRightIcon } from '@heroicons/vue/24/outline'
 import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
+import { onMounted, ref } from 'vue'
 
-const registries = ref()
+const userStore = useUserStore()
+
+const registries = ref<HistoryRegistry[]>([])
+const isLoading = ref(false)
+
+async function getRegistries() {
+  try {
+    isLoading.value = true
+    registries.value = await historyRegistryRepositories.getByAuthor(userStore.user!.id)
+    isLoading.value = false
+  } catch (error) {
+    console.log(error)
+    isLoading.value = false
+    showErrorToast('Hubo un error obteniendo los datos, verifique la conexión a internet')
+  }
+}
+
+onMounted(getRegistries)
 </script>
 
 <template>
-  <div class="">
+  <LoadingLabel v-if="isLoading" />
+  <div v-else>
     <div class="max-w-full mx-auto px-6 md:px-12 lg:px-24">
       <h2 class="font-bold text-xl mb-4 mx-6">Mi equipo</h2>
       <!-- Tabla -->
