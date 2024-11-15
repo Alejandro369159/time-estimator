@@ -3,5 +3,3 @@
 <template>
   <div>pagina member</div>
 </template>
-
-<style scoped></style>

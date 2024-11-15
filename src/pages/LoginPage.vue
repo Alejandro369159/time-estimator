@@ -116,7 +116,7 @@ const clearForm = () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center bg-gray-50">
+  <div class="min-h-screen flex items-center">
     <div class="flex w-3/4 mx-auto md:w-full bg-white shadow-lg">
       <!-- Image section -->
       <div class="flex-1 hidden md:flex">
@@ -191,7 +191,7 @@ const clearForm = () => {
             <button
               type="submit"
               :disabled="loading"
-              class="w-full px-3 py-2 rounded-md bg-purple-700 text-white text-lg hover:bg-indigo-800 transition"
+              class="w-full px-3 py-2 rounded-md bg-accent text-white text-lg hover:bg-indigo-800 transition"
               v-text="isLogin ? 'Entrar' : 'Crear cuenta'"
             ></button>
           </form>

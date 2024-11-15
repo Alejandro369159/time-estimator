@@ -10,14 +10,21 @@ const router = createRouter({
       component: () => import('@/pages/LoginPage.vue'),
     },
     {
-      path: '/mi-equipo',
-      name: 'my-team',
-      component: () => import('@/pages/MyTeamPage.vue'),
-    },
-    {
-      path: '/detalle-de-miembro',
-      name: 'member-detail',
-      component: () => import('@/pages/MemberDetailPage.vue'),
+      path: '/',
+      name: 'navbar-layout',
+      component: () => import('@/layout/NavbarLayout.vue'),
+      children: [
+        {
+          path: 'mi-equipo',
+          name: 'my-team',
+          component: () => import('@/pages/MyTeamPage.vue'),
+        },
+        {
+          path: 'detalle-de-miembro',
+          name: 'member-detail',
+          component: () => import('@/pages/MemberDetailPage.vue'),
+        },
+      ],
     },
   ],
 })

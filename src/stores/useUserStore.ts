@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { User } from '@/entities/User'
-import { onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from '@/services/firebase'
 import router from '@/router'
 
@@ -30,9 +30,16 @@ export const useUserStore = defineStore('user', () => {
     user.value = null
   }
 
+  async function logOut() {
+    await signOut(auth)
+    router.push({ name: 'login' })
+    clearUser()
+  }
+
   return {
     user,
     clearUser,
     setUser,
+    logOut,
   }
 })
