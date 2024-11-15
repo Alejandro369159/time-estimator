@@ -116,7 +116,7 @@ const clearForm = () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center bg-gray-100">
+  <div class="min-h-screen flex items-center bg-gray-50">
     <div class="flex w-3/4 mx-auto md:w-full bg-white shadow-lg">
       <!-- Image section -->
       <div class="flex-1 hidden md:flex">
@@ -145,7 +145,7 @@ const clearForm = () => {
                 v-model="formData.username"
                 required
                 autocomplete="username"
-                class="w-full px-3 py-1.5 rounded-md bg-gray-200 border border-gray-300 text-base"
+                class="w-full px-3 py-1.5 rounded-md bg-gray-50 border border-gray-300 text-base"
               />
             </div>
 
@@ -158,7 +158,7 @@ const clearForm = () => {
                 v-model="formData.email"
                 required
                 autocomplete="email"
-                class="w-full px-3 py-1.5 rounded-md bg-gray-200 border border-gray-300 text-base outline-none"
+                class="w-full px-3 py-1.5 rounded-md bg-gray-50 border border-gray-300 text-base outline-none"
               />
             </div>
 
@@ -171,7 +171,7 @@ const clearForm = () => {
                 v-model="formData.password"
                 required
                 :autocomplete="isLogin ? 'current-password' : 'new-password'"
-                class="w-full px-3 py-1.5 rounded-md bg-gray-200 border border-gray-300 text-base outline-none"
+                class="w-full px-3 py-1.5 rounded-md bg-gray-50 border border-gray-300 text-base outline-none"
               />
             </div>
 
@@ -184,7 +184,7 @@ const clearForm = () => {
                 v-model="formData.confirmPassword"
                 required
                 autocomplete="new-password"
-                class="w-full px-3 py-1.5 rounded-md bg-gray-200 border border-gray-300 text-base"
+                class="w-full px-3 py-1.5 rounded-md bg-gray-50 border border-gray-300 text-base"
               />
             </div>
 
