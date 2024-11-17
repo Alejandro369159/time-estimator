@@ -3,7 +3,7 @@ import LoadingLabel from '@/components/LoadingLabel.vue'
 import type { HistoryRegistry } from '@/entities/HistoryRegistry'
 import type { Member } from '@/entities/Member'
 import { showErrorToast } from '@/helpers/swalFunctions'
-import { historyRegistryRepositories, membersRepository } from '@/repositories'
+import { historyRegistriesRepository, membersRepository } from '@/repositories'
 import router from '@/router'
 import { useUserStore } from '@/stores/useUserStore'
 import { ChevronRightIcon } from '@heroicons/vue/24/outline'
@@ -33,9 +33,9 @@ async function fetchMembersAndRegistries() {
   try {
     isLoading.value = true
     members.value = await membersRepository.getByAuthor(userStore.user!.id)
-    registries.value = await historyRegistryRepositories.getByAuthor(userStore.user!.id)
+    registries.value = await historyRegistriesRepository.getByAuthor(userStore.user!.id)
     isLoading.value = false
-  } catch (error) {
+  } catch {
     isLoading.value = false
     showErrorToast('Hubo un error obteniendo los datos, verifique la conexión a internet')
   }
@@ -117,12 +117,14 @@ onMounted(async () => {
                 Último entrenamiento
               </th>
             </tr>
+
+            <tr>
+              <td colspan="2" class="">
+                <hr class="border-zinc-400" />
+              </td>
+            </tr>
           </thead>
-          <tr>
-            <td colspan="2" class="">
-              <hr class="border-zinc-400" />
-            </td>
-          </tr>
+
           <tbody>
             <tr v-if="isLoading">
               <td colspan="2">
@@ -156,7 +158,7 @@ onMounted(async () => {
         <button
           @click="goToPreviousPage"
           class="flex items-center justify-center p-2 rounded-lg w-10 h-10 bg-secondary"
-          :class="{ 'bg-gray-200 cursor-default': isFirstPage() }"
+          :class="{ '!bg-gray-200 cursor-default': isFirstPage() }"
         >
           <ChevronLeftIcon class="text-white" />
         </button>
@@ -168,7 +170,7 @@ onMounted(async () => {
         <button
           @click="goToNextPage"
           class="flex items-center justify-center p-2 rounded-lg w-10 h-10 bg-secondary"
-          :class="{ 'bg-gray-200 cursor-default': isLastPage() }"
+          :class="{ '!bg-gray-200 cursor-default': isLastPage() }"
         >
           <ChevronRightIcon class="text-white" />
         </button>

@@ -1,6 +1,15 @@
-import { registryFromFirestore } from '@/entities/HistoryRegistry'
+import { registryFromFirestore, type HistoryRegistry } from '@/entities/HistoryRegistry'
 import { db } from '@/services/firebase'
-import { collection, getDocs, orderBy, query, where } from 'firebase/firestore'
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  where,
+} from 'firebase/firestore'
 
 export class HistoryRegistriesRepository {
   public static async getByAuthor(authorId: string) {
@@ -13,5 +22,14 @@ export class HistoryRegistriesRepository {
     const q = query(collection(db, 'history'), where('memberId', '==', memberId))
     const snapshot = await getDocs(q)
     return snapshot.docs.map(registryFromFirestore)
+  }
+
+  public static async addRegistry(registry: HistoryRegistry) {
+    return await addDoc(collection(db, 'history'), registry)
+  }
+
+  public static async deleteRegistry(registryId: string) {
+    const document = doc(db, 'history', registryId)
+    await deleteDoc(document)
   }
 }
