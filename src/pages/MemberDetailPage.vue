@@ -2,7 +2,10 @@
 import LoadingLabel from '@/components/LoadingLabel.vue'
 import type { HistoryRegistry } from '@/entities/HistoryRegistry'
 import { showErrorToast } from '@/helpers/swalFunctions'
+import type { Member } from '@/entities/Member'
 import { historyRegistriesRepository } from '@/repositories'
+import { membersRepository } from '@/repositories';
+import router from '@/router'
 import { useUserStore } from '@/stores/useUserStore'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
 import { computed, onMounted, ref } from 'vue'
@@ -16,6 +19,7 @@ const pageIndex = ref(0)
 const PAGE_SIZE = 10
 
 const memberId = route.params.id as string | undefined
+const memberName = ref('')
 const isLoading = ref(false)
 const isEstimating = ref(false) // Estado de carga para la estimación
 
@@ -31,6 +35,18 @@ const shownRegistries = computed<HistoryRegistry[]>(() => {
   const endIndex = (pageIndex.value + 1) * PAGE_SIZE
   return taskRegistries.value.slice(startIndex, endIndex)
 })
+
+async function getMemberData() {
+  try {
+    if (!memberId) throw Error('El miembro no fue encontrado')
+    const member = await membersRepository.getById(memberId)
+    if (!member || !member.name) throw Error('Datos del miembro incompletos')
+    memberName.value = member.name  // Changed from member.memberName to member.name
+  } catch (error) {
+    console.error('Error obteniendo datos del miembro:', error)
+    showErrorToast('No se pudo obtener la información del miembro')
+  }
+}
 
 async function getTaskRegistries() {
   try {
@@ -65,6 +81,12 @@ async function trainModel() {
 
 // Función para predecir el tiempo de completitud
 async function estimateTime() {
+  if (estimatedTaskDifficulty.value <= 0) {
+    showErrorToast('La dificultad debe ser mayor a 0')
+    predictedTime.value = null
+    return
+  }
+
   if (taskRegistries.value.length < 2) {
     showErrorToast('No hay suficientes datos históricos para hacer una estimación')
     predictedTime.value = null
@@ -84,6 +106,11 @@ async function estimateTime() {
 
 // Función para agregar un nuevo registro de tarea
 async function addTaskRegistry() {
+  if (newRegistryDifficulty.value <= 0) {
+    showErrorToast('La dificultad debe ser mayor a 0')
+    return
+  }
+
   try {
     if (!memberId) throw Error('No fue posible agregar el registro')
     const newRegistry: HistoryRegistry = {
@@ -130,6 +157,7 @@ function isFirstPage() {
 }
 
 onMounted(() => {
+  getMemberData()
   getTaskRegistries()
 })
 </script>
@@ -137,7 +165,7 @@ onMounted(() => {
 <template>
   <div class="mb-32">
     <div>
-      <h2 class="font-bold text-2xl mb-4 px-6">Miembro:</h2>
+      <h2 class="font-bold text-2xl mb-4 px-6">Miembro: {{ memberName }}</h2>
     </div>
     <div class="px-6">
       <div class="bg-white shadow-sm py-3 px-4 border-x border-t border-gray-300">
