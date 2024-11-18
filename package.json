@@ -15,7 +15,6 @@
   "dependencies": {
     "@heroicons/vue": "^2.1.5",
     "@tensorflow/tfjs": "^4.22.0",
-    "brain.js": "^1.4.10",
     "firebase": "^11.0.2",
     "pinia": "^2.2.6",
     "sweetalert2": "^11.14.5",
