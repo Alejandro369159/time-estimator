@@ -54,7 +54,10 @@ async function trainModel() {
   const times = taskRegistries.value.map((task) => task.taskCompletitionTimeInMinutes)
 
   const xs = tf.tensor2d(difficulties, [difficulties.length, 1])
-  const ys = tf.tensor2d(times.map(time => time / 60), [times.length, 1]) // Convertimos a horas
+  const ys = tf.tensor2d(
+    times.map((time) => time / 60),
+    [times.length, 1],
+  ) // Convertimos a horas
 
   await model.fit(xs, ys, { epochs: 500 })
   return model
@@ -74,7 +77,7 @@ async function estimateTime() {
   const input = tf.tensor2d([estimatedTaskDifficulty.value], [1, 1])
   const output = model.predict(input) as tf.Tensor
   const predictedHours = output.dataSync()[0] // Extraemos el valor predicho en horas
-  predictedTime.value = Math.round(predictedHours * 60) // Convertimos de horas a minutos
+  predictedTime.value = Math.max(Math.round(predictedHours * 60), 0) // Convertimos de horas a minutos
 
   isEstimating.value = false // Desactiva el estado de carga
 }
@@ -156,8 +159,10 @@ onMounted(() => {
         <p class="w-2/3 mx-auto text-center">
           <span v-if="isEstimating" class="text-gray-500">Cargando...</span>
           <span v-else>
-            Tiempo estimado de compleción: 
-            <span v-if="predictedTime !== null" class="text-accent-base font-medium">{{ predictedTime }} min</span>
+            Tiempo estimado de compleción:
+            <span v-if="predictedTime !== null" class="text-accent-base font-medium"
+              >{{ predictedTime }} min</span
+            >
             <span v-else class="text-gray-500">N/A</span>
           </span>
         </p>
