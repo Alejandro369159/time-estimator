@@ -7,6 +7,7 @@ import { useUserStore } from '@/stores/useUserStore'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import * as tf from '@tensorflow/tfjs'
 
 const route = useRoute()
 const user = useUserStore().user
@@ -15,10 +16,11 @@ const pageIndex = ref(0)
 const PAGE_SIZE = 10
 
 const memberId = route.params.id as string | undefined
-
 const isLoading = ref(false)
+const isEstimating = ref(false) // Estado de carga para la estimación
 
 const estimatedTaskDifficulty = ref(0)
+const predictedTime = ref<number | null>(null)
 
 const newRegistryDifficulty = ref(0)
 const newRegistryCompletitionTimeInMinutes = ref(0)
@@ -42,10 +44,42 @@ async function getTaskRegistries() {
   }
 }
 
-function estimateTime() {
-  //
+// Función para entrenar el modelo de regresión con TensorFlow.js
+async function trainModel() {
+  const model = tf.sequential()
+  model.add(tf.layers.dense({ units: 1, inputShape: [1] }))
+  model.compile({ optimizer: 'sgd', loss: 'meanSquaredError' })
+
+  const difficulties = taskRegistries.value.map((task) => task.taskDificulty)
+  const times = taskRegistries.value.map((task) => task.taskCompletitionTimeInMinutes)
+
+  const xs = tf.tensor2d(difficulties, [difficulties.length, 1])
+  const ys = tf.tensor2d(times.map(time => time / 60), [times.length, 1]) // Convertimos a horas
+
+  await model.fit(xs, ys, { epochs: 500 })
+  return model
 }
 
+// Función para predecir el tiempo de completitud
+async function estimateTime() {
+  if (taskRegistries.value.length < 2) {
+    showErrorToast('No hay suficientes datos históricos para hacer una estimación')
+    predictedTime.value = null
+    return
+  }
+
+  isEstimating.value = true // Activa el estado de carga
+
+  const model = await trainModel()
+  const input = tf.tensor2d([estimatedTaskDifficulty.value], [1, 1])
+  const output = model.predict(input) as tf.Tensor
+  const predictedHours = output.dataSync()[0] // Extraemos el valor predicho en horas
+  predictedTime.value = Math.round(predictedHours * 60) // Convertimos de horas a minutos
+
+  isEstimating.value = false // Desactiva el estado de carga
+}
+
+// Función para agregar un nuevo registro de tarea
 async function addTaskRegistry() {
   try {
     if (!memberId) throw Error('No fue posible agregar el registro')
@@ -63,6 +97,7 @@ async function addTaskRegistry() {
   }
 }
 
+// Función para eliminar un registro de tarea específico
 async function deleteTaskRegistry(registryId: string) {
   try {
     await historyRegistriesRepository.deleteRegistry(registryId)
@@ -91,7 +126,6 @@ function isFirstPage() {
   return pageIndex.value === 0
 }
 
-// Async
 onMounted(() => {
   getTaskRegistries()
 })
@@ -120,14 +154,18 @@ onMounted(() => {
       </div>
       <div class="py-2 px-4 bg-white border border-gray-300">
         <p class="w-2/3 mx-auto text-center">
-          Tiempo estimado de compleción: <span class="text-accent-base font-medium">3h</span>
+          <span v-if="isEstimating" class="text-gray-500">Cargando...</span>
+          <span v-else>
+            Tiempo estimado de compleción: 
+            <span v-if="predictedTime !== null" class="text-accent-base font-medium">{{ predictedTime }} min</span>
+            <span v-else class="text-gray-500">N/A</span>
+          </span>
         </p>
       </div>
 
       <!-- Historial -->
       <div class="overflow-x-auto mt-12 bg-white py-3">
         <h3 class="text-center font-medium text-lg mb-3">Historial del entrenamiento</h3>
-
         <form
           @submit.prevent="addTaskRegistry"
           class="flex items-center h-10 justify-end px-6 space-x-3"
@@ -164,14 +202,12 @@ onMounted(() => {
               </th>
               <th class="w-1/3 bg-white text-left px-6 py-2 whitespace-nowrap">Acciones</th>
             </tr>
-
             <tr>
-              <td colspan="4" class="">
+              <td colspan="4">
                 <hr class="border-zinc-400" />
               </td>
             </tr>
           </thead>
-
           <tbody>
             <tr v-if="isLoading">
               <td colspan="2">
@@ -182,7 +218,7 @@ onMounted(() => {
               <td colspan="4">
                 <div>
                   <p class="font-medium bg-white py-2 px-6 w-full shadow-sm text-center">
-                    Aun no hay registros de tareas para este miembro.
+                    Aún no hay registros de tareas para este miembro.
                   </p>
                 </div>
               </td>
@@ -212,7 +248,6 @@ onMounted(() => {
           </tbody>
         </table>
       </div>
-
       <!-- Navegación -->
       <div class="flex justify-between items-center mt-4 mx-6">
         <button
