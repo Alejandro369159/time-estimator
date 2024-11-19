@@ -4,7 +4,7 @@ import type { HistoryRegistry } from '@/entities/HistoryRegistry'
 import { showErrorToast } from '@/helpers/swalFunctions'
 import type { Member } from '@/entities/Member'
 import { historyRegistriesRepository } from '@/repositories'
-import { membersRepository } from '@/repositories';
+import { membersRepository } from '@/repositories'
 import router from '@/router'
 import { useUserStore } from '@/stores/useUserStore'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
@@ -41,7 +41,7 @@ async function getMemberData() {
     if (!memberId) throw Error('El miembro no fue encontrado')
     const member = await membersRepository.getById(memberId)
     if (!member || !member.name) throw Error('Datos del miembro incompletos')
-    memberName.value = member.name  // Changed from member.memberName to member.name
+    memberName.value = member.name // Changed from member.memberName to member.name
   } catch (error) {
     console.error('Error obteniendo datos del miembro:', error)
     showErrorToast('No se pudo obtener la información del miembro')
@@ -75,7 +75,7 @@ async function trainModel() {
     [times.length, 1],
   ) // Convertimos a horas
 
-  await model.fit(xs, ys, { epochs: 500 })
+  await model.fit(xs, ys, { epochs: 100 })
   return model
 }
 
