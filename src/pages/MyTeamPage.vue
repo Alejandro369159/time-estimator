@@ -27,6 +27,15 @@ const membersForTable = computed<Array<Member & { lastTrainingDate: Date | undef
   return membersWithRegistries.value.slice(startIndex, endIndex)
 })
 
+const formatDate = computed(() => (date: Date | undefined) => {
+  if (!date) return '---'
+  return new Date(date).toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+})
+
 const isLoading = ref(false)
 
 async function fetchMembersAndRegistries() {
@@ -35,7 +44,7 @@ async function fetchMembersAndRegistries() {
     members.value = await membersRepository.getByAuthor(userStore.user!.id)
     registries.value = await historyRegistriesRepository.getByAuthor(userStore.user!.id)
     isLoading.value = false
-  } catch {
+  } catch (error) {
     isLoading.value = false
     showErrorToast('Hubo un error obteniendo los datos, verifique la conexión a internet')
   }
@@ -47,7 +56,9 @@ function assignLastTrainingDateToMembers() {
     lastTrainingDate: undefined,
   }))
   membersWithRegistries.value.forEach((member, index) => {
-    const lastRegistry = registries.value.find((registry) => registry.memberId === member.id)
+    const lastRegistry = registries.value.find((registry) => {
+      return registry.memberId === member.id
+    })
     if (lastRegistry) {
       membersWithRegistries.value[index].lastTrainingDate = lastRegistry.createdAt
     }
@@ -56,11 +67,35 @@ function assignLastTrainingDateToMembers() {
 
 async function addMember() {
   try {
+    if (!newMemberName.value.trim()) {
+      showErrorToast('El nombre del miembro no puede estar vacío')
+      return
+    }
+
     const newMember = await membersRepository.createMember(newMemberName.value)
     membersWithRegistries.value.push({ ...newMember, lastTrainingDate: undefined })
     newMemberName.value = ''
   } catch {
     showErrorToast('Error al crear el nuevo miembro')
+  }
+}
+
+async function deleteMember(event: Event, memberId: string | undefined) {
+  event.stopPropagation()
+  if (!memberId) {
+    showErrorToast('No se puede eliminar un miembro sin ID')
+    return
+  }
+
+  try {
+    if (confirm('¿Estás seguro de que deseas eliminar este miembro?')) {
+      await membersRepository.deleteMember(memberId)
+      membersWithRegistries.value = membersWithRegistries.value.filter(
+        (member) => member.id !== memberId,
+      )
+    }
+  } catch {
+    showErrorToast('Error al eliminar el miembro')
   }
 }
 
@@ -112,14 +147,14 @@ onMounted(async () => {
         <table class="w-full border-separate border-spacing-y-3 border-spacing-x-6">
           <thead>
             <tr>
-              <th class="w-2/3 bg-white text-left px-6 py-2 whitespace-nowrap">Nombre completo</th>
+              <th class="w-1/2 bg-white text-left px-6 py-2 whitespace-nowrap">Nombre completo</th>
               <th class="w-1/3 bg-white text-left px-6 py-2 whitespace-nowrap">
                 Último entrenamiento
               </th>
+              <th class="w-1/6 bg-white text-left px-6 py-2 whitespace-nowrap">Acciones</th>
             </tr>
-
             <tr>
-              <td colspan="2" class="">
+              <td colspan="3" class="">
                 <hr class="border-zinc-400" />
               </td>
             </tr>
@@ -127,12 +162,12 @@ onMounted(async () => {
 
           <tbody>
             <tr v-if="isLoading">
-              <td colspan="2">
+              <td colspan="3">
                 <LoadingLabel />
               </td>
             </tr>
             <tr v-else-if="!membersWithRegistries.length">
-              <td colspan="2">
+              <td colspan="3">
                 <div>
                   <p class="font-medium bg-white py-2 px-6 w-full shadow-sm text-center">
                     Aun no hay miembros en el equipo.
@@ -147,7 +182,17 @@ onMounted(async () => {
               class="bg-white hover:bg-gray-50 cursor-pointer"
             >
               <td class="px-6 py-2 whitespace-nowrap">{{ member.name }}</td>
-              <td class="px-6 py-2 whitespace-nowrap">{{ member.lastTrainingDate ?? '---' }}</td>
+              <td class="px-6 py-2 whitespace-nowrap">
+                {{ formatDate(member.lastTrainingDate) }}
+              </td>
+              <td class="px-6 py-2 whitespace-nowrap">
+                <button
+                  @click="(e) => deleteMember(e, member.id)"
+                  class="bg-red-500 hover:bg-red-600 px-3 py-1.5 text-white text-sm rounded"
+                >
+                  Eliminar
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>

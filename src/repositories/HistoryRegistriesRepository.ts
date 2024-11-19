@@ -13,7 +13,11 @@ import {
 
 export class HistoryRegistriesRepository {
   public static async getByAuthor(authorId: string) {
-    const q = query(collection(db, 'history'), where('authorId', '==', authorId), orderBy('desc'))
+    const q = query(
+      collection(db, 'history'),
+      where('authorId', '==', authorId),
+      orderBy('createdAt', 'desc'),
+    )
     const snapshot = await getDocs(q)
     return snapshot.docs.map(registryFromFirestore)
   }

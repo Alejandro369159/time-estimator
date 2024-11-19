@@ -1,7 +1,16 @@
 import { memberFromFirestore, type Member } from '@/entities/Member'
 import { db } from '@/services/firebase'
 import { useUserStore } from '@/stores/useUserStore'
-import { addDoc, collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore'
+import {
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+  deleteDoc,
+} from 'firebase/firestore'
 
 export class MembersRepository {
   public static async getByAuthor(authorId: string): Promise<Member[]> {
@@ -24,11 +33,19 @@ export class MembersRepository {
   public static async createMember(memberName: string): Promise<Member> {
     const user = useUserStore().user
     if (!user) throw Error('No esta autenticado')
-    const newMember: Member = {
+    const memberData: Member = {
       name: memberName,
       authorId: user.id,
     }
-    await addDoc(collection(db, 'members'), newMember)
-    return newMember
+    const docRef = await addDoc(collection(db, 'members'), memberData)
+    return {
+      id: docRef.id,
+      ...memberData,
+    }
+  }
+
+  public static async deleteMember(memberId: string): Promise<void> {
+    const memberDocRef = doc(db, 'members', memberId)
+    await deleteDoc(memberDocRef)
   }
 }
